@@ -6,56 +6,56 @@ const fs = require("fs");
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-	console.log('Congratulations, your extension "intelliassist" is now active!');
+    console.log('Congratulations, your extension "intelliassist" is now active!');
 
-	let disposable1 = vscode.commands.registerCommand(
-		"intelliassist.helloWorld",
-		function () {
-			vscode.window.showInformationMessage("Hello World from IntelliAssist!");
-		}
-	);
+    let disposable1 = vscode.commands.registerCommand(
+        "intelliassist.helloWorld",
+        function () {
+            vscode.window.showInformationMessage("Hello World from IntelliAssist!");
+        }
+    );
 
-	vscode.commands.registerCommand("extension.enableCustomPanel", () => {
-		let panel = vscode.window.createWebviewPanel(
-			"customPanel",
-			"Custom Panel",
-			vscode.ViewColumn.Six,
-			{
-				localResourceRoots: [
-					vscode.Uri.file(path.join(context.extensionPath, "assets")),
-					vscode.Uri.file(path.join(context.extensionPath, "node_modules")),
-				],
-				enableScripts: true,
-				// @ts-ignore
-				preserveFocus: true,
-				webviewOptions: {
-					width: 300,
-				},
-			}
-		);
+    vscode.commands.registerCommand("extension.enableCustomPanel", () => {
+        let panel = vscode.window.createWebviewPanel(
+            "customPanel",
+            "Custom Panel",
+            vscode.ViewColumn.Six,
+            {
+                localResourceRoots: [
+                    vscode.Uri.file(path.join(context.extensionPath, "assets")),
+                    vscode.Uri.file(path.join(context.extensionPath, "node_modules")),
+                ],
+                enableScripts: true,
+                // @ts-ignore
+                preserveFocus: true,
+                webviewOptions: {
+                    width: 300,
+                },
+            }
+        );
 
-		const highlightCssPath = vscode.Uri.file(
-			path.join(
-				context.extensionPath,
-				"node_modules",
-				"highlight.js",
-				"styles",
-				"default.css"
-			)
-		);
-		const highlightCssSrc = panel.webview.asWebviewUri(highlightCssPath);
+        const highlightCssPath = vscode.Uri.file(
+            path.join(
+                context.extensionPath,
+                "node_modules",
+                "highlight.js",
+                "styles",
+                "default.css"
+            )
+        );
+        const highlightCssSrc = panel.webview.asWebviewUri(highlightCssPath);
 
-		const customCssPath = vscode.Uri.file(
-			path.join(context.extensionPath, "assets", "styles.css")
-		);
-		const customCssSrc = panel.webview.asWebviewUri(customCssPath);
+        const customCssPath = vscode.Uri.file(
+            path.join(context.extensionPath, "assets", "styles.css")
+        );
+        const customCssSrc = panel.webview.asWebviewUri(customCssPath);
 
-		const customJSPath = vscode.Uri.file(
-			path.join(context.extensionPath, "assets", "script.js")
-		);
-		const customJSSrc = panel.webview.asWebviewUri(customJSPath);
+        const customJSPath = vscode.Uri.file(
+            path.join(context.extensionPath, "assets", "script.js")
+        );
+        const customJSSrc = panel.webview.asWebviewUri(customJSPath);
 
-		panel.webview.html = `
+        panel.webview.html = `
 		<!DOCTYPE html>
 		<html lang="en">
 		<head>
@@ -97,33 +97,148 @@ function activate(context) {
 					<i id="success-icon" class="fa fa-paper-plane" style="display: none;"></i>
 				</div>
 			</div>
-			<script src=${customJSSrc}></script>
-			<script src=${customJSSrc}></script>
+            <script>
+                let count = 0;
+                const messageContainer = document.getElementById("message_container");
+
+                const apiCall = function (e) {
+                    document.getElementById("message").style.height = "60px";
+                    userMessage = document.querySelector("#message").value.trim() + "";
+
+                    if (/^\s*$/.test(userMessage)) {
+                        return; // Do nothing if the textarea is empty or contains only spaces/tabs
+                    }
+                    
+                    // Creating userFormatMessage
+                    const userFormatMessage = document.createElement("div");
+                    userFormatMessage.className = "user message";
+
+                    // Create the "identity" div with class "identity"
+                    const identityDiv = document.createElement("div");
+                    identityDiv.className = "identity";
+
+                    // create the user-icon element
+                    const userIconElement = document.createElement("i");
+                    userIconElement.className = "user-icon";
+                    userIconElement.style.marginRight = "5px";
+                    userIconElement.innerText = "u";
+
+                    // Append the "user-icon" to the "identity" div
+                    identityDiv.appendChild(userIconElement)
+
+                    // Create the "content" div with class "content"
+                    const contentDiv = document.createElement("div");
+                    contentDiv.className = "content";
+
+                    // Create the inner div with the user information
+                    const userInfoDiv = document.createElement("div");
+
+                    // Create the "fa-user" icon
+                    const userIcon = document.createElement("i");
+                    userIcon.className = "fa fa-user";
+
+                    // create the "b" element for the bold text
+                    const boldElement = document.createElement("b");
+                    boldElement.textContent = "you";
+                    boldElement.style.marginLeft = "5px";
+
+                    // Append the "fa-user" and "b" elements to the inner div
+                    userInfoDiv.appendChild(userIcon);
+                    userInfoDiv.appendChild(boldElement);
+
+                    // Create the "userContentValue" div with white-space: pre-line;
+                    const userContentValueDiv = document.createElement("div");
+                    userContentValueDiv.className = "userContentValue";
+                    userContentValueDiv.style.whiteSpace = "pre-line";
+
+                    userContentValueDiv.innerText = userMessage;
+
+                    // Append the inner divs to the "content" div
+                    contentDiv.appendChild(userInfoDiv);
+                    contentDiv.appendChild(userContentValueDiv);
+
+                    // Append the "identity" and "content" divs to the main div
+                    userFormatMessage.appendChild(identityDiv);
+                    userFormatMessage.appendChild(contentDiv);
+
+
+                    document.querySelector("#message").value = "";
+    
+                    messageContainer.appendChild(userFormatMessage);
+
+                    // For showing the loader effect
+
+                    let sendButton = document.querySelector('.send-button');
+                    let submitButtonContent = document.getElementById('submitButtonContent');
+
+                    let loadingImage = document.getElementById('loading-image').cloneNode(true);
+                    let successIcon = document.getElementById('success-icon').cloneNode(true);
+                    submitButtonContent.innerHTML = '';
+                    loadingImage.style.display = "inline-block";
+                    submitButtonContent.appendChild(loadingImage);
+                    console.log(loadingImage);
+                    sendButton.disabled = true;
+                    sendButton.style.cursor = "context-menu";
+                    sendButton.style.backGroundColor = "color-gpt4";
+
+                    if (userMessage) {
+                        document.body.getElementsByTagName("main")[0].scrollTop = document.body.getElementsByTagName("main")[0].scrollHeight;
+                        (async () => {
+                            const rawResponse = await fetch('https://5850-34-127-121-254.ngrok-free.app/askme', {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    "prompt": userMessage
+                                })
+                            })
+
+                            let botMessage = await rawResponse.text();
+                            console.log(botMessage);
+
+
+                }
+
+                const message_box = document.querySelector("#message");
+
+                message_box.addEventListener("keyup", function () {
+                message_box.style.height = "auto";
+                let height = message_box.scrollHeight + 2;
+                if (height > 200) {
+                    height = 200;
+                }
+                message_box.style.height = height + "px";
+});
+
+            </script>
 		</body>
     </html>
         `;
 
-		// Listen for the webview panel's event onDidChangeViewState
-		panel.onDidChangeViewState((e) => {
-			// Check if the webview is active and visible
-			if (panel.visible) {
-				// Trigger a layout update when the webview becomes visible
-				panel.webview.postMessage({ command: "updateLayout" });
-			}
-		});
-	});
 
-	context.subscriptions.push(
-		disposable1,
-		vscode.commands.registerCommand("extension.enableMyExtension", () => {
-			vscode.commands.executeCommand("extension.enableCustomPanel");
-		})
-	);
+        // Listen for the webview panel's event onDidChangeViewState
+        panel.onDidChangeViewState((e) => {
+            // Check if the webview is active and visible
+            if (panel.visible) {
+                // Trigger a layout update when the webview becomes visible
+                panel.webview.postMessage({ command: "updateLayout" });
+            }
+        });
+    });
+
+    context.subscriptions.push(
+        disposable1,
+        vscode.commands.registerCommand("extension.enableMyExtension", () => {
+            vscode.commands.executeCommand("extension.enableCustomPanel");
+        })
+    );
 }
 
 function deactivate() { }
 
 module.exports = {
-	activate,
-	deactivate,
+    activate,
+    deactivate,
 };
