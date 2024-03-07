@@ -1,7 +1,7 @@
 const vscode = require("vscode");
 const path = require("path");
 const fs = require("fs");
-const marked = require('marked');
+
 /**
  * @param {vscode.ExtensionContext} context
  */
@@ -34,26 +34,26 @@ function activate(context) {
             }
         );
 
-        const highlightCssPath = vscode.Uri.file(
-            path.join(
-                context.extensionPath,
-                "node_modules",
-                "highlight.js",
-                "styles",
-                "default.css"
-            )
-        );
-        const highlightCssSrc = panel.webview.asWebviewUri(highlightCssPath);
+        // const highlightCssPath = vscode.Uri.file(
+        //     path.join(
+        //         context.extensionPath,
+        //         "node_modules",
+        //         "highlight.js",
+        //         "styles",
+        //         "default.css"
+        //     )
+        // );
+        // const highlightCssSrc = panel.webview.asWebviewUri(highlightCssPath);
 
         const customCssPath = vscode.Uri.file(
             path.join(context.extensionPath, "assets", "styles.css")
         );
         const customCssSrc = panel.webview.asWebviewUri(customCssPath);
 
-        const customJSPath = vscode.Uri.file(
-            path.join(context.extensionPath, "assets", "script.js")
-        );
-        const customJSSrc = panel.webview.asWebviewUri(customJSPath);
+        // const customJSPath = vscode.Uri.file(
+        //     path.join(context.extensionPath, "assets", "script.js")
+        // );
+        // const customJSSrc = panel.webview.asWebviewUri(customJSPath);
 
         panel.webview.html = `
 		<!DOCTYPE html>
@@ -62,12 +62,17 @@ function activate(context) {
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<title>Custom Panel</title>
-			<link rel="stylesheet" href="${highlightCssSrc}">
 			<link rel="stylesheet" href="${customCssSrc}">
 			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
 			integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
 			crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+            <script>hljs.highlightAll();</script>
 		</head>
 		<body>
 			<main>
@@ -179,6 +184,8 @@ function activate(context) {
                 
                     let loadingImage = document.getElementById('loading-image').cloneNode(true);
                     let successIcon = document.getElementById('success-icon').cloneNode(true);
+
+                    
                     submitButtonContent.innerHTML = '';
                     loadingImage.style.display = "inline-block";
                     submitButtonContent.appendChild(loadingImage);
@@ -189,8 +196,9 @@ function activate(context) {
                 
                     if (userMessage) {
                         document.body.getElementsByTagName("main")[0].scrollTop = document.body.getElementsByTagName("main")[0].scrollHeight;
+
                         (async () => {
-                            const rawResponse = await fetch('https://9c45-34-87-106-52.ngrok-free.app/askme', {
+                            const rawResponse = await fetch('https://5b3c-34-32-157-169.ngrok-free.app/askme', {
                                 method: 'POST',
                                 headers: {
                                     'Accept': 'application/json',
@@ -199,7 +207,7 @@ function activate(context) {
                                 body: JSON.stringify({
                                     "prompt": userMessage
                                 })
-                            })
+                            })();
                 
                             let botMessage = await rawResponse.text();
                             console.log("I am botMessage", botMessage);
@@ -243,7 +251,9 @@ function activate(context) {
                             // Create the assistantContentValue div
                             const assistantContentValueDiv = document.createElement("div");
                             assistantContentValueDiv.classList.add("assistantContentValue");
-                            assistantContentValueDiv.textContent = marked(botMessage); // Assuming marked function is defined elsewhere
+                            
+                            assistantContentValueDiv.textContent = marked.parse(botMessage); // Assuming marked function is defined elsewhere
+                            assistantContentValueDiv.textContent += "Hii Bro"; // Assuming marked function is defined elsewhere
 
                             // Append the margin-bottom div and assistantContentValue div to the content div
                             contentDiv.appendChild(marginBottomDiv);
@@ -252,6 +262,22 @@ function activate(context) {
                             // Append the identity div and content div to the botFormatMessage div
                             botFormatMessage.appendChild(identityDiv);
                             botFormatMessage.appendChild(contentDiv);
+
+                            submitButtonContent.innerHTML = '';
+                            submitButtonContent.appendChild(successIcon);
+                            sendButton.disabled = false;
+                            sendButton.style.cursor = "pointer";
+                            sendButton.style.backGroundColor = "color- gpt3";
+
+                            let tempBotDiv = document.createElement('div');
+                            tempBotDiv.innerHTML = botFormatMessage;
+
+                            messageContainer.appendChild(tempBotDiv);
+                            console.log(botMessage);
+
+                            document.querySelectorAll('pre code').forEach((block) => {
+                                hljs.highlightBlock(block);
+                            });
 
                         })();
                 

@@ -28,7 +28,8 @@
     "pretest": "npm run lint",
     "test": "vscode-test",
     "compile": "tsc",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "build": "webpack"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
@@ -37,7 +38,9 @@
     "@vscode/test-cli": "^0.0.4",
     "@vscode/test-electron": "^2.3.9",
     "eslint": "^8.56.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
     "axios": "^1.6.7",
